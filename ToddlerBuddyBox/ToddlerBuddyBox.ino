@@ -6,15 +6,15 @@
 
 // Arduino Wire library is required if I2Cdev I2CDEV_ARDUINO_WIRE implementation
 // is used in I2Cdev.h
-#define throttlePin A0
-#define pitchPin A6
-#define rollPin A7
-#define yawPin A5
+#define throttlePin A6
+#define pitchPin A5
+#define rollPin A4
+#define yawPin A7
 
 
 #define PPM_PIN 4
 #define LED_PIN 13 // (Arduino is 13, Teensy is 11, Teensy++ is 6)
-#define PRINT_RAW_DATA 0
+#define PRINT_RAW_DATA 1
 
 // ================================================================
 // ===                        VARIABLES                         ===
@@ -43,15 +43,15 @@ int throttle,roll,pitch,yaw;
 
 //output vars
 unsigned long timer = 0;
-int rcMin = 500;
-int rcMax = 1700;
+int rcMin = 625;
+int rcMax = 1500;
 
 int rollMin = 500;
 int rollMax = 1700;
 int pitchMin = 500;
 int pitchMax = 1700;
 int throttleMin = 500;
-int throttleMax = 1700;
+int throttleMax = 1500;
 int yawMin = 500;
 int yawMax = 1700;
 
@@ -65,7 +65,6 @@ int frameDelay = 400;
 
 
 void pulseDataOut(int pin, int data[8]) {
-  digitalWrite(pin,HIGH);
   delayMicroseconds(framelength-(data[0]+data[1]+data[2]+data[3]+data[4]+data[5]+data[6]+data[7])-(frameDelay*9));
   digitalWrite(pin,LOW); 
   delayMicroseconds(frameDelay);
@@ -75,6 +74,7 @@ void pulseDataOut(int pin, int data[8]) {
 	  delayMicroseconds(data[x]);
 	  digitalWrite(pin,LOW);
 	  delayMicroseconds(frameDelay);
+ digitalWrite(pin,HIGH);
   }
 }
 
@@ -123,9 +123,9 @@ void loop() {
     
     int channelData[8]={1000,1000,1000,1000,1000,1000,1000,1000};
     //every 20 milliseconds, send out the PPM data
-      channelData[2] = map(pitch,0,1024,rcMin,rcMax); //map(analogRead(pitch),0,1024,pitchMax,pitchMin);
+      channelData[2] = map(pitch,1024,0,rcMin,rcMax); //map(analogRead(pitch),0,1024,pitchMax,pitchMin);
       channelData[1] = map(roll,0,1024,rcMin,rcMax); //map(analogRead(roll),0,1024,rollMax,rollMin);
-      channelData[0] = map(throttle,0,1024,rcMin,rcMax); //map(analogRead(throttle),0,1024,throttleMin,throttleMax);
+      channelData[0] = map(throttle,1024,0,throttleMin,throttleMax); //map(analogRead(throttle),0,1024,throttleMin,throttleMax);
 	  channelData[3] = map(yaw,0,1024,rcMin,rcMax);
 
         #if PRINT_RAW_DATA == 1

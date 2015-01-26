@@ -231,3 +231,6 @@ $RECYCLE.BIN/
 *.lnk
 *.cppproj
 ToddlerBuddyBox/Visual Micro/.ToddlerBuddyBox.vsarduino.h
+*.atsln
+*.h
+*.xml
