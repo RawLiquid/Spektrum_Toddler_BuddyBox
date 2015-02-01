@@ -54,9 +54,8 @@ RH_NRF24 RadioDriver;
 RHDatagram RadioManager(RadioDriver, CLIENT_ADDRESS);// sets the driver to NRF24 and the client adress to 1
 
 /*-----( Declare Variables )-----*/
-uint8_t joystick[4];  // 2 element array of unsigned 8-bit type, holding Joystick readings
+uint8_t joystick[8];  // 2 element array of unsigned 8-bit type, holding Joystick readings
 uint16_t joystickraw[4];  // 2 element array of unsigned 8-bit type, holding Joystick readings
-
 uint16_t joystickLimits[4][2];
 
 // Predefine the message buffer here: Don't put this on the stack:
@@ -91,10 +90,12 @@ void loop() /****** LOOP: RUNS CONSTANTLY ******/
 for(int x = 0; x < 4; x++ ) {
   if(joystickraw[x]<joystickLimits[x][0]) {joystickLimits[x][0]=joystickraw[x];}
   if(joystickraw[x]>joystickLimits[x][1]) {joystickLimits[x][1]=joystickraw[x];}
+  uint8_t *joysticktemp;
   
-  joystick[x] = map(joystickraw[x], joystickLimits[x][0], joystickLimits[x][1], 0, 255);
+  joysticktemp = convertFrom16To8(map(joystickraw[x], joystickLimits[x][0], joystickLimits[x][1], 0, 1023));
+    joystick[x*2]=joysticktemp[0];
+    joystick[(x*2)+1]=joysticktemp[1];
   }
-
 
   //Display the joystick values in the serial monitor.
   //Serial.print("x:");
@@ -139,3 +140,22 @@ for(int x = 0; x < 4; x++ ) {
 
 //  delay(500);  // Wait a bit before next transmission
 }
+
+
+uint16_t convertFrom8To16(uint8_t dataFirst, uint8_t dataSecond) {
+    uint16_t dataBoth = 0x0000;
+
+    dataBoth = dataFirst;
+    dataBoth = dataBoth << 8;
+    dataBoth |= dataSecond;
+    return dataBoth;
+}
+
+uint8_t *convertFrom16To8(uint16_t dataAll) {
+    static uint8_t arrayData[2] = { 0x00, 0x00 };
+
+    *(arrayData) = (dataAll >> 8) & 0x00FF;
+    arrayData[1] = dataAll & 0x00FF;
+    return arrayData;
+}
+

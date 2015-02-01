@@ -61,11 +61,12 @@ RH_NRF24 RadioDriver;
 RHDatagram RadioManager(RadioDriver, SERVER_ADDRESS);
 
 /*-----( Declare Variables )-----*/
-int HorizontalJoystickReceived[2]; // Variable to store received Joystick values
-int HorizontalServoPosition[2];    // variable to store the servo position
 
-int VerticalJoystickReceived[2];   // Variable to store received Joystick values
-int VerticalServoPosition[2];      // variable to store the servo position
+unsigned int HorizontalJoystickReceived[2]; // Variable to store received Joystick values
+unsigned int HorizontalServoPosition[2];    // variable to store the servo position
+
+unsigned int VerticalJoystickReceived[2];   // Variable to store received Joystick values
+unsigned int VerticalServoPosition[2];      // variable to store the servo position
 
 uint8_t ReturnMessage[] = "JoyStick Data Received";  // 28 MAX
 // Predefine the message buffer here: Don't put this on the stack:
@@ -123,16 +124,16 @@ void loop()
   
   {
     SoftwareServo::refresh();//refreshes servo to keep them updating
-    HorizontalJoystickReceived[0]  = buf[1];  // Get the values received
-    VerticalJoystickReceived[0]    = buf[0]; 
-    HorizontalJoystickReceived[1]  = buf[3];  // Get the values received
-    VerticalJoystickReceived[1]    = buf[2]; 
+    HorizontalJoystickReceived[0]  = convertFrom8To16(buf[2],buf[3]);  // Get the values received
+    VerticalJoystickReceived[0]    = convertFrom8To16(buf[0],buf[1]); 
+    HorizontalJoystickReceived[1]  = convertFrom8To16(buf[4],buf[5]);  // Get the values received
+    VerticalJoystickReceived[1]    = convertFrom8To16(buf[6],buf[7]); 
 
     // scale it to use it with the servo (value between MIN and MAX)
-    HorizontalServoPosition[0]  = map(HorizontalJoystickReceived[0], 0, 255, ServoMIN_H , ServoMAX_H);
-    VerticalServoPosition[0]    = map(VerticalJoystickReceived[0],   0, 255, ServoMIN_V , ServoMAX_V);
-    HorizontalServoPosition[1]  = map(HorizontalJoystickReceived[1], 0, 255, ServoMIN_H , ServoMAX_H);
-    VerticalServoPosition[1]    = map(VerticalJoystickReceived[1],   0, 255, ServoMIN_V , ServoMAX_V);
+    HorizontalServoPosition[0]  = map(HorizontalJoystickReceived[0], 0, 1023, ServoMIN_H , ServoMAX_H);
+    VerticalServoPosition[0]    = map(VerticalJoystickReceived[0],   0, 1023, ServoMIN_V , ServoMAX_V);
+    HorizontalServoPosition[1]  = map(HorizontalJoystickReceived[1], 0, 1023, ServoMIN_H , ServoMAX_H);
+    VerticalServoPosition[1]    = map(VerticalJoystickReceived[1],   0, 1023, ServoMIN_V , ServoMAX_V);
     ////Serial.print("H1 : ");
     //Serial.print(HorizontalServoPosition[0]);
     //Serial.print("  V1 : ");
@@ -147,3 +148,20 @@ void loop()
     delay(5);                      // wait for the servo to reach the position
   }
 }// END Main LOOP
+uint16_t convertFrom8To16(uint8_t dataFirst, uint8_t dataSecond) {
+    uint16_t dataBoth = 0x0000;
+
+    dataBoth = dataFirst;
+    dataBoth = dataBoth << 8;
+    dataBoth |= dataSecond;
+    return dataBoth;
+}
+
+uint8_t *convertFrom16To8(uint16_t dataAll) {
+    static uint8_t arrayData[2] = { 0x00, 0x00 };
+
+    *(arrayData) = (dataAll >> 8) & 0x00FF;
+    arrayData[1] = dataAll & 0x00FF;
+    return arrayData;
+}
+
