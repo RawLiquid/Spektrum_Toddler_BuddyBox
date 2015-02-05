@@ -1,3 +1,9 @@
+//#include <Adafruit_ssd1306syp.h>
+//#define SDA_PIN 4
+//#define SCL_PIN 5
+//Adafruit_ssd1306syp display(SDA_PIN,SCL_PIN);
+
+
 /* YourDuinoStarter Example:RECEIVE nRF24L01 Joystick data to control Pan Tilt Servos Over Radio.
    QUESTIONS? terry@yourduino.com
  -WHAT IT DOES:
@@ -93,7 +99,8 @@ void setup()
 {
 //  pinMode(LaserPIN, OUTPUT);
 //  digitalWrite(LaserPIN, HIGH); // turn on Laser
-
+//delay(1000);
+//display.initialize();
   /*-----( Set up servos )-----*/
 //  HorizontalServo.attach(ServoHorizontalPIN);  // attaches the servo to the servo object
 //  VerticalServo.attach(ServoVerticalPIN);      // attaches the servo to the servo object
@@ -138,20 +145,7 @@ void loop()
     if (RadioManager.recvfrom(buf, &len, &from))
  //Serial Print the values of joystick
     {
-      ////Serial.print("got request from : 0x");
-      ////Serial.print(from, HEX);
-      ////Serial.print(": X = ");
-      ////Serial.print(buf[0]);
-      ////Serial.print("| Y = ");
-      ////Serial.print(buf[1]);
-      ////Serial.print(": X = ");
-      ////Serial.print(buf[2]);
-      ////Serial.print(" Y = ");
-      ////Serial.println(buf[3]);
-
-      // Send a reply back to the originator client, check for error
-//      if (!RadioManager.sendto(ReturnMessage, sizeof(ReturnMessage), from))
-//        ////Serial.println("sendtoWait failed");
+      //test
     }// end 'IF Received data Available
   }// end 'IF RadioManager Available
   
@@ -161,7 +155,7 @@ void loop()
       ppm[1] = convertFrom8To16(buf[2],buf[3])+1000; //map(analogRead(roll),0,1024,rollMax,rollMin);
       ppm[0] = convertFrom8To16(buf[0],buf[1])+1000; //map(analogRead(throttle),0,1024,throttleMin,throttleMax);
       ppm[3] = convertFrom8To16(buf[6],buf[7])+1000;
-
+ 
 //    HorizontalJoystickReceived[0]  = convertFrom8To16(buf[2],buf[3]);  // Get the values received
 //    VerticalJoystickReceived[0]    = convertFrom8To16(buf[0],buf[1]); 
 //    HorizontalJoystickReceived[1]  = convertFrom8To16(buf[4],buf[5]);  // Get the values received

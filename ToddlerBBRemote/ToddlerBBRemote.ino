@@ -55,6 +55,8 @@ RHDatagram RadioManager(RadioDriver, CLIENT_ADDRESS);// sets the driver to NRF24
 
 /*-----( Declare Variables )-----*/
 uint8_t joystick[8];  // 2 element array of unsigned 8-bit type, holding Joystick readings
+uint8_t joysticklast[8];  // 2 element array of unsigned 8-bit type, holding Joystick readings
+
 uint16_t joystickraw[4];  // 2 element array of unsigned 8-bit type, holding Joystick readings
 uint16_t joystickLimits[4][2];
 
@@ -118,23 +120,26 @@ for(int x = 0; x < 4; x++ ) {
 
   //Serial.println("Sending Joystick data to nrf24_reliable_datagram_server");
   //Send a message containing Joystick data to manager_server
-  if (RadioManager.sendto(joystick, sizeof(joystick), SERVER_ADDRESS))
-  {
-    // Now wait for a reply from the server
-    uint8_t len = sizeof(buf);
-    uint8_t from;
-//    if (RadioManager.recvfromAckTimeout(buf, &len, 2000, &from))
-//    {
-//      //Serial.print("got reply from : 0x");
-//      //Serial.print(from, HEX);
-//      //Serial.print(": ");
-//      //Serial.println((char*)buf);
-//    }
-//    else
-//    {
-//      //Serial.println("No reply, is nrf24_datagram_server running?");
-//    }
-  }
+  if (joystick != joysticklast)
+   {joysticklast==joystick;
+    RadioManager.sendto(joystick, sizeof(joystick), SERVER_ADDRESS);
+
+
+//     // Now wait for a reply from the server
+//     uint8_t len = sizeof(buf);
+//     uint8_t from;
+// //    if (RadioManager.recvfromAckTimeout(buf, &len, 2000, &from))
+// //    {
+// //      //Serial.print("got reply from : 0x");
+// //      //Serial.print(from, HEX);
+// //      //Serial.print(": ");
+// //      //Serial.println((char*)buf);
+// //    }
+// //    else
+// //    {
+// //      //Serial.println("No reply, is nrf24_datagram_server running?");
+// //    }
+   }
 //  else
     //Serial.println("sendto failed");
 
