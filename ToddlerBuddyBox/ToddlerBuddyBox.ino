@@ -12,7 +12,7 @@
 #define yawPin A7
 
 
-#define PPM_PIN 4
+#define PPM_PIN 5
 #define LED_PIN 13 // (Arduino is 13, Teensy is 11, Teensy++ is 6)
 #define PRINT_RAW_DATA 1
 
