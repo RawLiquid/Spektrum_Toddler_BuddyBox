@@ -69,6 +69,26 @@ void setup()  /****** SETUP: RUNS ONCE ******/
   // begin serial to display on Serial Monitor. Set Serial Monitor to 115200
   // See http://arduino-info.wikispaces.com/YourDuino-Serial-Monitor
   ////Serial.begin(115200);
+uint16_t joycenter[4]= {0,0,0,0};
+//Stick calibration
+while(joycenter[0]==joystickraw[0] || joycenter[1]==joystickraw[1] || joycenter[2]==joystickraw[2] || joycenter[3]==joystickraw[3] || joystickLimits[0][1]-joystickLimits[0][0] < 500 || joystickLimits[1][1]-joystickLimits[1][0] < 500 || joystickLimits[2][1]-joystickLimits[2][0] < 500 || joystickLimits[3][1]-joystickLimits[3][0] < 500) {
+
+  joystickraw[0] = analogRead(JoyStick_X_PIN);
+  joystickraw[1] = analogRead(JoyStick_Y_PIN);
+  joystickraw[2] = analogRead(JoyStick2_X_PIN);
+  joystickraw[3] = analogRead(JoyStick2_Y_PIN);
+
+  for(int x = 0; x < 4; x++ ) {
+	  if(joystickraw[x]<joystickLimits[x][0]) {joystickLimits[x][0]=joystickraw[x];} //update Min limits for sticks
+	  if(joystickraw[x]>joystickLimits[x][1]) {joystickLimits[x][1]=joystickraw[x];} //update Max limits for sticks
+	  }
+  if(joycenter[0]==0){ for(int j=0;j<4;j++) { joycenter[j]=joystickraw[j]; }; }
+  }
+		  
+	  
+
+
+
 
   // NOTE: pinMode for Radio pins handled by RadioDriver
   if (!RadioManager.init())   // Defaults after init are 2.402 GHz (channel 2), 2Mbps, 0dBm
