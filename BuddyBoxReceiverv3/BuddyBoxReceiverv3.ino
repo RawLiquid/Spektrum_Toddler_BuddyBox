@@ -7,6 +7,10 @@
 int modval=5;
 float spektrumMin = 821;
 float spektrumMax = 1621;
+//float spektrumMin = 1000;
+//float spektrumMax = 2000;
+
+
 float spread= 500;
 PPM myPPM; 	/* Instance our PPM class library	*/
 float remoteLimits[5][2];
@@ -19,10 +23,8 @@ void setup()
   delay(2000);
   for (int z=1;z<5;z++){
     myPPM.dataWrite(PPM_OUTPUT_04, z,2000);
-    for(int z=1;z<5;z++) {
-      remoteLimits[z][0]=1500;
-      remoteLimits[z][1]=1500;
-    }
+      remoteLimits[z][0]=1020;
+      remoteLimits[z][1]=1990;
   }
 
   Serial.begin(115200);
@@ -44,11 +46,11 @@ void loop()
    */
   unsigned long started=millis();
   while (calibrated == false) {
-    while (millis()-started<10000) {
+    while (millis()-started<15000) {
 
       for (int x = 1; x < 5; x++) {
         float chanval = myPPM.dataRead(PPM_INPUT_25, x);
-        if (chanval < remoteLimits[x][0]) {
+        if (chanval > 200 && chanval < remoteLimits[x][0]) {
           remoteLimits[x][0] = chanval; //update Min limits for sticks
         }
         if (chanval > remoteLimits[x][1]) {
@@ -100,11 +102,12 @@ void loop()
 
       case 3:
         sendval=mapf(val, remoteLimits[i][0], remoteLimits[i][1], spektrumMin, spektrumMax);
-        myPPM.dataWrite(PPM_OUTPUT_04, 1, (((spektrumMax - spektrumMin) / 2) + spektrumMin));
+        //myPPM.dataWrite(PPM_OUTPUT_04, 1, (((spektrumMax - spektrumMin) / 2) + spektrumMin));
+        myPPM.dataWrite(PPM_OUTPUT_04, 1, sendval);
         break;
       case 4:
         sendval=mapf(val, remoteLimits[i][0], remoteLimits[i][1], spektrumMax+2, spektrumMin-1);
-        myPPM.dataWrite(PPM_OUTPUT_04, i, sendval);
+        myPPM.dataWrite(PPM_OUTPUT_04, 4, sendval);
         break;
       default:
         myPPM.dataWrite(PPM_OUTPUT_04, i,val);
@@ -147,7 +150,44 @@ void serialEvent() {
   if (inChr==']') {
     modval=modval+1;
   }
-  
+  if (inChr=='?') {
+   Serial.print("In - ");
+   for (int i = 1; i < 5; i++) {
+      float val = myPPM.dataRead(PPM_INPUT_25, i);
+      Serial.print("CH:");
+      Serial.print(i);
+      Serial.print(" ");
+      Serial.print(val);
+      Serial.print("   ");
+     }
+     Serial.println();
+     
+   Serial.print("Out - ");
+   for (int i = 1; i < 5; i++) {
+      float val = myPPM.dataRead(PPM_INPUT_25, i);
+      float sndval=mapf(val, remoteLimits[i][0], remoteLimits[i][1], spektrumMin, spektrumMax);
+      Serial.print("CH:");
+      Serial.print(i);
+      Serial.print(" ");
+      Serial.print(sndval);
+      Serial.print("   ");
+     }
+     Serial.println();
+
+     
+     
+  }
+  if (inChr=='v') {
+          Serial.println("CH    1 	  	    2 		        3  		       4");
+      for (int n=1; n<5; n++) {
+        Serial.print(remoteLimits[n][0]);
+        Serial.print(" - ");
+        Serial.print(remoteLimits[n][1]);
+        Serial.print("  ");
+      }
+      Serial.println();
+  }
+
   Serial.print("Min=");
   Serial.print(spektrumMin);
   Serial.print(" Max=");
